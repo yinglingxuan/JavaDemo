@@ -1,0 +1,17 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.business.dao.UserInfoMapper">
+    <!--获取在该店购买过的所有用户-->
+   <select id="getUser" resultType="com.example.business.domain.UserInfo">
+       SELECT ui.user_openid,ui.user_identity, ui.user_name, ui.user_sex, user_country, ui.user_language, ui.user_province, ui.user_city,max(o.create_time) create_time from `order` o,user_infos ui
+        where  o.user_openid=ui.user_openid
+        group by ui.user_openid limit #{page.offset},#{page.limits}
+   </select>
+    <select id="getUserCount" resultType="java.lang.Long">
+         	select count(*) from
+            (SELECT ui.user_openid from `order` o,user_infos ui
+            where  o.user_openid=ui.user_openid and o.order_state=1
+             group by ui.user_openid) as a
+    </select>
+</mapper>

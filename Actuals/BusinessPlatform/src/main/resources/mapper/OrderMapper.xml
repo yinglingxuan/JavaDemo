@@ -1,0 +1,35 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.business.dao.OrderMapper">
+
+    <resultMap id="OrderAddess" type="com.example.business.domain.UserOrder">
+        <id column="order_id" property="id"></id>
+        <result column="user_openid" property="userOpenid"></result>
+        <result column="remark" property="remark"></result>
+        <result column="order_state" property="orderState"></result>
+        <collection property="foods" columnPrefix="gs_" ofType="com.example.business.domain.CartGoods" autoMapping="true">
+            <id column="id" property="id"></id>
+        </collection>
+        <collection property="addess" columnPrefix="ua_" ofType="com.example.business.domain.Addesss" autoMapping="true">
+            <id column="address_id" property="addressId"></id>
+        </collection>
+    </resultMap>
+
+<!--商家订单详情-->
+    <select id="queryOrder" resultMap="OrderAddess">
+        SELECT o.id order_id,o.user_openid,o.remark,o.order_state,fi.food_uuid gs_id,ft.type_name gs_type,fi.food_name gs_name,fi.description gs_description,fi.food_price gs_price,fi.food_newprice gs_oldPrice,fi.food_icon gs_icon,od.food_count gs_count,
+        ua.address_id ua_address_id,ua.user_openid ua_user_openid,ua.user_name ua_user_name,ua.user_phone ua_user_phone,ua.user_sex ua_user_sex,ua.`user_address` ua_user_address,ua.address_doorplate ua_address_doorplate,ua.address_title ua_address_title
+        FROM `order` o,order_detail od,food_infos fi,food_type ft,order_address ua
+        where od.order_id=o.id and fi.shop_uuid=od.shop_uuid and od.shop_uuid=#{shopUuid} and fi.food_uuid=od.food_uuid and ft.shop_uuid=od.shop_uuid  and o.address_id=ua.address_id
+        limit #{page.offset},#{page.limits}
+    </select>
+<!--商家订单总数-->
+    <select id="queryOrderCount" resultType="long">
+        SELECT count(1) FROM (SELECT count(o.id)
+        FROM `order` o,order_detail od,food_infos fi,food_type ft,order_address ua
+        where od.order_id=o.id and fi.shop_uuid=od.shop_uuid and od.shop_uuid=#{shopUuid} and fi.food_uuid=od.food_uuid and ft.shop_uuid=od.shop_uuid  and o.address_id=ua.address_id
+        GROUP BY o.id) as b
+    </select>
+
+</mapper>

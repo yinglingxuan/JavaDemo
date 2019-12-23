@@ -1,0 +1,14 @@
+wx:
+  config:
+    appId: wxebc2898805d625cd
+    appSecret: 48661872587dbc53af5b27f3ce84ff38
+    url: http://wx.panqingshan.cn
+    templates:
+      apply_notice: 5PejEvWoHAIOWXvPMaZlIJg8R2RAln408mPEo6_f1eE
+logging:
+  level: 
+    cn:
+      panqingshan:
+        demo:
+          wx:
+            config: trace

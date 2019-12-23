@@ -1,0 +1,92 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.client.dao.ShopMappers">
+            <!--求圆的范围-->
+            <sql id="searchCondi">
+                (shop_latitude BETWEEN #{map.minLatitude} AND #{map.maxLatitude}) AND (shop_longitude BETWEEN #{map.minLongitude} AND #{map.maxLongitude})
+            </sql>
+			<!--根据搜索的店铺查找-->
+			<select id="searchShop" resultType="ShopData">
+                    SELECT shop_uuid as shopId ,shop_style_id, match_style, shop_name, shop_status, shop_icon, description, delivery_time, min_price, delivery_price, bulletin, sale, infos, shop_phone, sell_time, finish_time,shop_latitude,shop_longitude,create_time, udpate_time
+                FROM shop_infos WHERE shop_name like concat('%',#{text},'%') and
+                <include refid="searchCondi"></include>
+                limit #{page.offset},#{page.limits}
+			</select>
+            <select id="searchShopCount" resultType="long">
+                   SELECT count(1)
+                FROM shop_infos WHERE shop_name like concat('%',#{text},'%') and
+                <include refid="searchCondi"></include>
+            </select>
+			<!--根据搜索的商品查找-->
+			<select id="searchFood" resultType="ShopData">
+                    SELECT distinct s.shop_uuid as shopId ,s.shop_style_id, s.match_style, s.shop_name, s.shop_status, s.shop_icon, s.description, s.delivery_time, s.min_price, s.delivery_price, s.bulletin, s.sale, s.infos, s.shop_phone, s.sell_time, s.finish_time,shop_latitude,shop_longitude, s.create_time, s.udpate_time
+                FROM shop_infos as s,food_infos as f WHERE s.shop_uuid=f.shop_uuid AND f.food_name like concat('%',#{text},'%') and
+                <include refid="searchCondi"></include>
+                limit #{page.offset},#{page.limits}
+			</select>
+            <select id="searchFoodCount" resultType="long">
+                    SELECT count(1)
+                FROM shop_infos as s,food_infos as f WHERE s.shop_uuid=f.shop_uuid AND f.food_name like concat('%',#{text},'%') and
+                <include refid="searchCondi"></include>
+            </select>
+
+
+    <resultMap id="Goods" type="GoodsType" autoMapping="true">
+        <id column="id" property="id"></id>
+
+        <collection property="goods"  ofType="Goods" autoMapping="true">
+            <id column="foodId" property="foodId"></id>
+            <id column="description" property="description"></id>
+        </collection>
+    </resultMap>
+        <!--通过店家uuid获取到对应的店家信息-->
+        <select id="getShop" resultType="ShopData">
+            SELECT shop_uuid as shop_id, shop_style_id, match_style,shop_name, shop_status, shop_icon, description, delivery_time, min_price, bulletin, sale, infos, shop_phone, sell_time, finish_time, create_time, udpate_time
+	        FROM shop_infos
+	        WHERE shop_uuid=#{uuid}
+        </select>
+        <!--通过店家uuid获取到对应的店家菜系列表-->
+         <select id="getShopList" resultMap="Goods">
+            SELECT a.id, a.shop_uuid, a.type_name, a.type_count,b.food_uuid as foodId, b.shop_uuid, b.type_id, b.food_name, b.description as description, b.food_price, b.food_newprice, b.food_stock, b.food_icon FROM  food_type a left  join food_infos b  on a.id=b.type_id
+            WHERE a.shop_uuid=#{uuid}
+        </select>
+
+
+
+       <!--用户的收藏-->
+        <insert id="addLike">
+            INSERT INTO shop_liked
+            (user_openid, shop_uuid)
+            VALUES (#{openid}, #{uuid})
+        </insert>
+
+
+        <!--获取这个用户是否有收藏这个店家-->
+        <select id="getLike" resultType="Receive">
+            SELECT id, user_openid, shop_uuid
+            FROM shop_liked  WHERE user_openid=#{openid} and shop_uuid=#{uuid}
+        </select>
+
+
+
+        <!--用户取消收藏-->
+        <delete id="deleteLike">
+              DELETE FROM shop_liked WHERE user_openid=#{openid} and shop_uuid=#{uuid}
+        </delete>
+
+       <!-- 获取到菜系类型的总数
+        <select id="getShopCountType" resultType="Long">
+            SELECT COUNT(1)
+            FROM food_type
+            WHERE food_type.shop_uuid=#{uuid}
+        </select>
+        &lt;!&ndash;获取到菜系类型&ndash;&gt;
+        <select id="getShopType" resultType="GoodsType">
+            SELECT id, shop_uuid, type_name, type_count, create_time, update_time
+	        FROM food_type
+            WHERE food_type.shop_uuid=#{uuid}
+        </select>-->
+
+
+</mapper>

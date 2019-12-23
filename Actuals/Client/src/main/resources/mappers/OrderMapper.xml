@@ -1,0 +1,138 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.client.dao.OrderMapper">
+    <!--录入订单-->
+    <insert id="addOrder">
+        	INSERT INTO `order` (id,user_openid) VALUES (#{id},#{userOpenid})
+    </insert>
+    <!--录入订单详情-->
+    <insert id="addOrderDetail">
+        INSERT INTO order_detail
+        (id,order_id,shop_uuid,food_uuid,food_count)
+        VALUES
+        <foreach collection="list" item="l" index= "index" separator=",">
+        (UUID(),#{orderId},#{l.shopUuid},#{l.foodUuid},#{l.foodCount})
+        </foreach>
+    </insert>
+
+    <!--映射订单和订单详情-->
+    <resultMap id="Order" type="com.example.client.domain.UserOrder">
+        <id column="order_id" property="id"></id>
+        <result column="user_openid" property="userOpenid"></result>
+        <result column="remark" property="remark"></result>
+        <result column="order_state" property="orderState"></result>
+        <collection property="foods" columnPrefix="gs_" ofType="com.example.client.domain.CartGoods" autoMapping="true">
+            <id column="id" property="id"></id>
+        </collection>
+    </resultMap>
+    <select id="userOrderQuery" resultMap="Order">
+         SELECT o.id order_id,o.user_openid,o.remark,o.order_state,fi.food_uuid gs_id,ft.type_name gs_type,fi.food_name gs_name,fi.description gs_description,fi.food_price gs_price,fi.food_newprice gs_oldPrice,fi.food_icon gs_icon,od.food_count gs_count
+         FROM `order` o,order_detail od ,food_infos fi,food_type ft
+          where o.id=#{orderId} and od.order_id=o.id and fi.food_uuid=od.food_uuid and fi.type_id=ft.id
+    </select>
+    <!--删除订单-->
+    <delete id="orderDelete">
+    	DELETE FROM `order` WHERE id=#{orderId}
+    </delete>
+
+    <!--删除订单详情-->
+    <delete id="orderDeleteAll">
+    	DELETE FROM order_detail WHERE order_id=#{orderId}
+    </delete>
+    <!--查询出订单号-->
+    <select id="orderQuery" resultType="java.lang.String">
+        	select id from `order` where user_openid=#{openId} and order_state=0
+    </select>
+    <!--根据订单号查询商品的价格 和 数量 -->
+    <select id="userOrderQuerys" resultType="com.example.client.domain.CartGoods">
+        	SELECT fi.food_price price,food_count `count`
+	        FROM order_detail od,food_infos fi where od.order_id=#{orderId} and od.food_uuid=fi.food_uuid
+    </select>
+
+    <!--修改状态 支付成功-->
+    <update id="updateOrder">
+        	UPDATE `order`
+            <set>
+                <if test="state!=null">
+                    order_state=1,
+                </if>
+                <if test="remark!=null">
+                    remark=#{remark},
+                </if>
+                <if test="addressId!=null">
+                    address_id=#{addressId}
+                </if>
+            </set>
+            WHERE id=#{orderId}
+    </update>
+
+    <!--根据uuid 修改支付状态-->
+    <update id="updateOrders">
+        UPDATE `order`
+				SET
+					order_state=1
+				WHERE order_uiid=#{uuid}
+    </update>
+    <!--在订单里面用uuid 获取到 openid 和 商家id-->
+    <select id="queryOrders" resultType="com.example.client.domain.Cart">
+        SELECT o.user_openid,od.shop_uuid
+			FROM `order` o,order_detail od
+			where o.order_uiid=#{uuid} and o.id=od.order_id  limit 1;
+    </select>
+
+
+    <resultMap id="OrderAddess" type="com.example.client.domain.UserOrder">
+        <id column="order_id" property="id"></id>
+        <result column="user_openid" property="userOpenid"></result>
+        <result column="remark" property="remark"></result>
+        <result column="order_state" property="orderState"></result>
+        <collection property="foods" columnPrefix="gs_" ofType="com.example.client.domain.CartGoods" autoMapping="true">
+            <id column="id" property="id"></id>
+        </collection>
+        <collection property="addess" columnPrefix="ua_" ofType="com.example.client.domain.Addesss" autoMapping="true">
+            <id column="address_id" property="addressId"></id>
+        </collection>
+    </resultMap>
+
+    <!--支付成功后的订单详情-->
+    <select id="userOrderAddessQuery" resultMap="OrderAddess">
+          SELECT o.id order_id,o.user_openid,o.remark,o.order_state,fi.food_uuid gs_id,ft.type_name gs_type,fi.food_name gs_name,fi.description gs_description,fi.food_price gs_price,fi.food_newprice gs_oldPrice,fi.food_icon gs_icon,od.food_count gs_count,
+			 ua.address_id ua_address_id,ua.user_openid ua_user_openid,ua.user_name ua_user_name,ua.user_phone ua_user_phone,ua.user_sex ua_user_sex,ua.`user_address` ua_user_address,ua.address_doorplate ua_address_doorplate,ua.address_title ua_address_title
+        FROM `order` o,order_detail od,food_infos fi,food_type ft,user_address ua
+        where o.id=#{orderId} and od.order_id=o.id and fi.shop_uuid=od.shop_uuid and fi.food_uuid=od.food_uuid and ft.shop_uuid=od.shop_uuid  and o.address_id=ua.address_id
+    </select>
+    <!--根据openid查询到用户的历史订单-->
+    <resultMap id="OrderAll" type="com.example.client.domain.UserOrder">
+        <id column="order_id" property="id"></id>
+        <result column="user_openid" property="userOpenid"></result>
+        <result column="remark" property="remark"></result>
+        <result column="order_state" property="orderState"></result>
+        <result column="shop_name" property="shopName"></result>
+        <result column="shop_icon" property="shopIcon"></result>
+        <result column="create_time" property="createTime"></result>
+        <collection property="foods" columnPrefix="gs_" ofType="com.example.client.domain.CartGoods" autoMapping="true">
+            <id column="id" property="id"></id>
+        </collection>
+        <collection property="addess" columnPrefix="ua_" ofType="com.example.client.domain.Addesss" autoMapping="true">
+            <id column="address_id" property="addressId"></id>
+        </collection>
+    </resultMap>
+
+    <!--支付成功后的订单详情-->
+    <select id="userOrderAddessQueryAll" resultMap="OrderAll">
+     	SELECT o.id order_id,o.user_openid,o.remark,o.order_state,o.create_time,si.shop_name,si.shop_icon,fi.food_uuid gs_id,ft.type_name gs_type,fi.food_name gs_name,fi.description gs_description,fi.food_price gs_price,fi.food_newprice gs_oldPrice,fi.food_icon gs_icon,od.food_count gs_count,
+		ua.address_id ua_address_id,ua.user_openid ua_user_openid,ua.user_name ua_user_name,ua.user_phone ua_user_phone,ua.user_sex ua_user_sex,ua.`user_address` ua_user_address,ua.address_doorplate ua_address_doorplate,ua.address_title ua_address_title
+        FROM `order` o,order_detail od,food_infos fi,food_type ft,order_address ua,shop_infos si
+        where o.user_openid=#{userOpenid} and od.order_id=o.id and fi.shop_uuid=od.shop_uuid and fi.food_uuid=od.food_uuid and ft.shop_uuid=od.shop_uuid   and fi.shop_uuid=si.shop_uuid and o.address_id=ua.address_id
+    </select>
+
+    <!--根据订单号录入uuid 这个uuid 是用来标识支付成功的-->
+    <update id="userOrderUpdate">
+        	UPDATE `order`
+	SET
+		order_uiid=#{uuid}
+	WHERE id=#{orderId}
+    </update>
+
+</mapper>

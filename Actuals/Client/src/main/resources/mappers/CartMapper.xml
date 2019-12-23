@@ -1,0 +1,36 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.client.dao.CartMapper">
+    <!--查询购物车数据 -->
+    <select id="query" resultType="com.example.client.domain.Cart">
+        	SELECT cart_uuid, user_openid, shop_uuid, food_uuid, food_count
+	        FROM cart where user_openid=#{userOpenid} and shop_uuid=#{shopUuid}
+    </select>
+    <!--查询这个商品存不存在-->
+    <select id="queryCart" resultType="java.lang.Integer">
+        	SELECT food_count FROM cart where user_openid=#{cart.userOpenid} and shop_uuid=#{cart.shopUuid} and food_uuid=#{cart.foodUuid}
+    </select>
+    <!--删除购物车-->
+    <delete id="delete">
+        DELETE FROM cart WHERE user_openid=#{userOpenid} and shop_uuid=#{shopUuid}
+    </delete>
+
+    <!--删除购物车商品小于=0的-->
+    <delete id="deleteFood">
+        DELETE FROM cart WHERE user_openid=#{cart.userOpenid} and shop_uuid=#{cart.shopUuid} and food_uuid=#{cart.foodUuid}
+    </delete>
+    <!--录入购物车-->
+    <insert id="cartAdd">
+        	INSERT INTO cart
+            (cart_uuid, user_openid, shop_uuid, food_uuid, food_count)
+            VALUES (#{cart.cartUuid},#{cart.userOpenid}, #{cart.shopUuid}, #{cart.foodUuid},1)
+    </insert>
+    <!--修改商品数量-->
+    <update id="updateCart">
+        UPDATE cart
+        SET
+            food_count=food_count+#{cart.foodCount}
+        WHERE user_openid=#{cart.userOpenid} and shop_uuid=#{cart.shopUuid} and food_uuid=#{cart.foodUuid}
+    </update>
+</mapper>

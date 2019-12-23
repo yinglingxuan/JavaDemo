@@ -1,0 +1,55 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.business.dao.FoodMapper">
+
+    <!--商品的添加-->
+    <insert id="add">
+        INSERT INTO food_infos
+	(food_uuid, shop_uuid, type_id, food_name, description, food_price, food_newprice, food_stock, food_icon, create_time, udpate_time)
+	VALUES (#{food.foodUuid},#{food.shopUuid},#{food.typeId},#{food.foodName},#{food.description},#{food.foodPrice},#{food.foodNewPrice},#{food.foodStock},#{food.foodIcon}, NOW(), NOW())
+    </insert>
+
+    <!--删除商家商品-->
+    <delete id="delete">
+        DELETE FROM food_infos WHERE food_uuid in
+        <foreach item="id" collection="ids" open="(" close=")" separator=",">
+             #{id}
+        </foreach>
+    </delete>
+
+    <!--修改商家商品-->
+    <update id="update">
+        UPDATE food_infos
+        <set>
+            <if test="food.foodName != null and food.foodName != ''"> food_name = #{food.foodName},</if>
+            <if test="food.typeId != null"> type_id = #{food.typeId},</if>
+            <if test="food.description != null and food.description != ''"> description = #{food.description},</if>
+            <if test="food.foodPrice != null and food.foodPrice>=0"> food_price = #{food.foodPrice},</if>
+            <if test="food.foodNewPrice != null"> food_newPrice = #{food.foodNewPrice},</if>
+            <if test="food.foodStock != null"> food_stock = #{food.foodStock},</if>
+            <if test="food.foodIcon != null"> food_icon = #{food.foodIcon}</if>
+        </set>
+
+        WHERE food_uuid=#{food.foodUuid}
+
+
+
+
+
+
+    </update>
+
+    <!--查询商家商品-->
+     <select id="search" resultType="Food">
+         SELECT a.id,a.shop_uuid,a.type_name,a.type_count,b.food_name,b.food_uuid,b.type_id,b.description,b.food_price,b.food_newprice,b.food_stock,b.food_icon
+	FROM food_type as a, food_infos as b
+	WHERE a.id=b.type_id and a.shop_uuid=#{food.shopUuid}
+	 limit #{page.offset},#{page.limits}
+     </select>
+    <!--查询商家有多少件商品-->
+    <select id="searchCount" resultType="long">
+       SELECT count(1) FROM food_type as a, food_infos as b
+	WHERE a.id=b.type_id and a.shop_uuid=#{shopUuid}
+    </select>
+</mapper>

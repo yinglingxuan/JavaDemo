@@ -1,0 +1,14 @@
+wx:
+  config:
+    appId: wx0f0a4bbe2fc2fc3a
+    appSecret: 716a65aa345ba2c8324f5612cdb5d251
+    url: https://wx.panqingshan.cn/linzhisong
+    templates:
+      apply_notice: 5PejEvWoHAIOWXvPMaZlIJg8R2RAln408mPEo6_f1eE
+logging:
+  level:
+    cn:
+      panqingshan:
+        demo:
+          wx:
+            config: trace

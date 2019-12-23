@@ -1,0 +1,26 @@
+﻿﻿server:
+  port: 80
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://192.168.2.131/sell_project?characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123123
+  jackson:
+ #   default-property-inclusion: non_null    #表示得出的json格式中值为null 会被省去
+  profiles:
+    active: dev
+#  session:
+#    store-type: redis
+#  redis:
+#    host: 192.168.2.188
+#    port: 6379
+#    database: 0
+mybatis:
+  mapper-locations: classpath:mappers/*.xml   #实体的映射类的路径
+  type-aliases-package: com.example.client.domain
+  configuration:
+      auto-mapping-behavior: partial
+      map-underscore-to-camel-case: true
+
+

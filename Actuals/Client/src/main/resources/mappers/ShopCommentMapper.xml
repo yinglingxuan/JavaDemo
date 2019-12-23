@@ -1,0 +1,36 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.client.dao.ShopCommentMapper">
+    <sql id="queryCondi">
+        <choose>
+            <when test="shopComment.type==0">
+                AND type=0
+            </when>
+            <when test="shopComment.type==1">
+                AND type=1
+            </when>
+        </choose>
+        <if test="shopComment.text!=null">
+            AND text!="" AND LENGTH(text)>0
+        </if>
+        AND shop_uuid=#{shopComment.shopUuid}
+    </sql>
+   <insert id="add">
+       INSERT INTO shop_comment
+	(id, shop_uuid, user_name, user_header, text, `type`, score, create_time, update_time)
+	VALUES (#{shopComment.id},#{shopComment.shopUuid}, #{shopComment.userName},#{shopComment.userHeader},#{shopComment.text}, #{shopComment.type}, #{shopComment.score}, NOW(), NOW())
+   </insert>
+
+    <select id="query" resultType="com.example.client.domain.ShopComment">
+        SELECT id, shop_uuid, user_name, user_header, text, `type`, score, create_time, update_time
+	FROM shop_comment WHERE 1=1
+        <include refid="queryCondi"></include>
+        limit #{page.offset},#{page.limits}
+    </select>
+    <select id="allCom" resultType="long">
+       SELECT count(1)
+	FROM shop_comment WHERE 1=1
+        <include refid="queryCondi"></include>
+    </select>
+</mapper>

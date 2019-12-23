@@ -1,0 +1,33 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.business.dao.ShopUserMapper">
+    <insert id="shopUserAdd">
+        INSERT INTO shop_user (shop_uuid, shop_password,shop_userName) VALUES (#{shopUser.shopUuid},#{shopUser.shopPassword},#{shopUser.shopUserName})
+    </insert>
+
+    <select id="shopEntrys" resultType="java.lang.String">
+        SELECT shop_uuid
+        FROM shop_user
+        where shop_password=#{shopUser.shopPassword} and shop_userName=#{shopUser.shopUserName}
+    </select>
+    <select id="shopEntryss" resultType="java.lang.String">
+        SELECT shop_uuid
+        FROM shop_user
+        where shop_userName=#{shopUser.shopUserName}
+    </select>
+    <insert id="shopAdd">
+        INSERT INTO shop_infos (shop_uuid, shop_name) VALUES (#{shopUuid},#{shopName})
+    </insert>
+
+    <select id="getShopUser" resultType="com.example.business.domain.ShopUser">
+        SELECT shop_uuid, shop_password, shop_userName, carete_time, update_time
+	    FROM shop_user
+        WHERE shop_uuid=#{uuid}
+    </select>
+
+    <update id="updateShopUser">
+        UPDATE `sell_project`.`shop_user` SET `shop_password`=#{newPossword} WHERE  `shop_uuid`=#{uuid}
+    </update>
+
+</mapper>

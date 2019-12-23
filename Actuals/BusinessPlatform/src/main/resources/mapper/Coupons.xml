@@ -1,0 +1,43 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.business.dao.CoponMapper">
+    <!--查看优惠券-->
+    <select id="getCop" resultType="com.example.business.domain.Copons">
+        SELECT id, price, integral, `full`, shop_uuid, create_time, update_time
+	    FROM coupon
+	    WHERE shop_uuid=#{cop.shopUuid}
+	    limit #{biz.offset},#{biz.limits}
+    </select>
+    <select id="count" resultType="Long">
+        SELECT count(1)
+	    FROM coupon
+	    WHERE shop_uuid=#{cop.shopUuid}
+    </select>
+
+    <!--添加优惠券-->
+    <insert id="addCop">
+        INSERT INTO coupon
+	    (id, price, integral, `full`, shop_uuid)
+	    VALUES (UUID(), #{price}, #{integral}, #{full}, #{shopUuid})
+    </insert>
+    <!--修改优惠券-->
+    <update id="upDataCop">
+        UPDATE coupon
+        <set>
+            <if test="price!=null and price !=''"> price =#{price},</if>
+            <if test="integral!=null and integral !=''"> integral =#{integral},</if>
+            <if test="full!=null and full !=''"> `full` =#{full}</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!--删除优惠券-->
+    <delete id="deleCop">
+        DELETE FROM coupon WHERE id in
+        <foreach item="id" collection="ids" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

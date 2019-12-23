@@ -1,0 +1,53 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.client.dao.AddressMapper">
+    <!--根据openid 查询出该用户的所有地址-->
+    <select id="query" resultType="com.example.client.domain.Addesss">
+        SELECT address_id, user_openid, user_name, user_phone, user_sex, user_address, address_doorplate, address_title FROM user_address where user_openid=#{openId}
+    </select>
+    <!--修改收货地址-->
+    <update id="update">
+        UPDATE user_address
+        SET
+            user_name=#{addesss.userName},
+            user_phone=#{addesss.userPhone},
+            user_sex=#{addesss.userSex},
+            user_address=#{addesss.userAddress},
+            address_doorplate=#{addesss.addressDoorplate},
+            address_title=#{addesss.addressTitle}
+        WHERE address_id=#{addesss.addressId}
+    </update>
+    <!--添加收货地址-->
+    <insert id="add">
+        	INSERT INTO user_address
+            (address_id, user_openid, user_name, user_phone, user_sex,user_address, address_doorplate, address_title)
+            VALUES (#{addesss.addressId},#{addesss.userOpenid},#{addesss.userName},#{addesss.userPhone}, #{addesss.userSex},#{addesss.userAddress}, #{addesss.addressDoorplate},#{addesss.addressTitle})
+    </insert>
+    <!--根据地址id删除地址-->
+    <delete id="delete">
+      	DELETE FROM user_address WHERE address_id=#{id}
+    </delete>
+
+
+    <select id="idAddress" resultType="com.example.client.domain.Addesss">
+        SELECT address_id,user_openid,user_name, user_phone,user_sex,user_address,address_doorplate,address_title
+        FROM user_address where address_id=#{addressId}
+    </select>
+    <!--添加订单地址-->
+    <insert id="orderAddAddress">
+        	INSERT INTO order_address
+            (address_id, user_openid, user_name, user_phone, user_sex,user_address, address_doorplate, address_title)
+            VALUES (#{addesss.addressId},#{addesss.userOpenid},#{addesss.userName},#{addesss.userPhone}, #{addesss.userSex},#{addesss.userAddress}, #{addesss.addressDoorplate},#{addesss.addressTitle})
+    </insert>
+
+    <select id="orderAddressId" resultType="java.lang.String">
+         SELECT address_id
+	    FROM `order` where id=#{orderId}
+
+    </select>
+    <delete id="deleteAddress">
+        DELETE FROM order_address WHERE address_id=#{addressId}
+    </delete>
+
+</mapper>

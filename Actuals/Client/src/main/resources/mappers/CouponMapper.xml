@@ -1,0 +1,41 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.client.dao.CouponMapper">
+    <!--查询出平台所有优惠卷-->
+    <select id="query" resultType="com.example.client.domain.Coupon">
+        	SELECT id, price, integral FROM coupon where shop_uuid is null
+    </select>
+    <!--插入优惠卷-->
+    <insert id="addUserCoupon">
+        	INSERT INTO user_coupon
+            (uuid,user_openid,coupon_id,coupon_time)
+            VALUES (#{uuid},#{openid},#{couponId},date_add(now(),interval 3 day))
+    </insert>
+
+    <resultMap id="Coupons" type="com.example.client.domain.UserCoupon">
+        <id column="uc_uuid" property="uuid"></id>
+        <result column="uc_user_openid" property="userOpenid"></result>
+        <result column="uc_coupon_id" property="couponId"></result>
+        <result column="uc_shop_coupon" property="shopCoupon"></result>
+        <result column="uc_coupon_time" property="couponTime"></result>
+        <collection property="coupon" columnPrefix="c" ofType="com.example.client.domain.Coupon" autoMapping="true">
+            <id column="id" property="id"></id>
+        </collection>
+    </resultMap>
+    <!--根据用户查询出他说有的优惠卷-->
+    <select id="queryCoupon" resultMap="Coupons">
+           SELECT uc.uuid uc_uuid, uc.user_openid uc_user_openid, uc.coupon_id uc_coupon_id,uc.coupon_time uc_coupon_time,
+           c.id c_id,c.price c_price,c.`full` c_full,c.shop_uuid c_shop_uuid
+	      FROM user_coupon uc,coupon c	where user_openid=#{openid} and uc.coupon_id=c.id
+    </select>
+    <!--根据id查询出优惠卷优惠价格-->
+    <select id="queryPrice" resultType="java.lang.Integer">
+        SELECT price
+        FROM coupon where id=#{uuid}
+    </select>
+
+    <select id="queryShopCoupon" resultType="com.example.client.domain.Coupon">
+        SELECT id, price, `full`, shop_uuid from coupon where shop_uuid=#{shopId}
+    </select>
+</mapper>

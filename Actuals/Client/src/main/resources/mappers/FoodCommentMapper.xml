@@ -1,0 +1,40 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.client.dao.FoodCommentMapper">
+    <sql id="queryCondi">
+        <choose>
+            <when test="foodComment.type==0">
+                AND type=0
+            </when>
+            <when test="foodComment.type==1">
+                AND type=1
+            </when>
+        </choose>
+        <if test="foodComment.text!=null">
+            AND text!="" AND LENGTH(text)>0
+        </if>
+        AND shop_uuid=#{foodComment.shopUuid}
+        AND food_uuid=#{foodComment.foodUuid}
+    </sql>
+	
+    <insert id="add">
+        INSERT INTO food_comment
+        (id, shop_uuid, food_uuid, user_name, user_header, text, `type`, score, create_time, udpate_time)
+        VALUES (#{foodComment.id},#{foodComment.shopUuid},#{foodComment.foodUuid},#{foodComment.userName},#{foodComment.userHeader},#{foodComment.text}, #{foodComment.type}, #{foodComment.score}, NOW(), NOW())
+    </insert>
+
+    <select id="query" resultType="com.example.client.domain.FoodComment">
+        SELECT id, shop_uuid, food_uuid, user_name, user_header, text, `type`, score, create_time, udpate_time
+        FROM food_comment WHERE 1=1
+        <include refid="queryCondi"></include>
+        limit #{page.offset},#{page.limits}
+    </select>
+	
+	
+    <select id="allCom" resultType="long">
+        SELECT count(1)
+        FROM food_comment WHERE 1=1
+        <include refid="queryCondi"></include>
+    </select>
+</mapper>

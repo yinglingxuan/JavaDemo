@@ -1,0 +1,42 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.client.dao.MemberMapper">
+    <!--修改商品数量-->
+    <update id="update">
+        UPDATE user_infos
+        SET
+            user_identity=1,
+            identity_time=#{member.date}
+        WHERE user_openid=#{member.userOpenid}
+    </update>
+
+    <!--插入用户会员的时间-->
+    <insert id="insert">
+        INSERT INTO use_only
+        (uuid,user_openid,identity_time)
+        VALUES (#{uuid},#{openid},#{date})
+    </insert>
+
+    <!--查询购买的信息-->
+    <select id="query" resultType="com.example.client.domain.Member">
+       	SELECT user_openid, identity_time date
+	FROM use_only where uuid=#{uuid}
+    </select>
+
+    <!--查询该用户有没有这条信息-->
+    <select id="querys" resultType="java.lang.String">
+        SELECT uuid
+        FROM use_only where user_openid=#{openid}
+    </select>
+
+    <!--删除信息-->
+    <delete id="delete">
+        DELETE FROM use_only WHERE uuid=#{uuid}
+    </delete>
+
+    <select id="queryTime" resultType="java.lang.String">
+        SELECT identity_time
+	    FROM user_infos where user_openid=#{openid}
+    </select>
+</mapper>

@@ -1,0 +1,42 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.client.dao.UserInfosMappers">
+
+    <!--查询登陆的人-->
+    <select id="query" resultType="com.example.client.domain.UserInfos">
+       SELECT user_openid, user_identity, user_name, user_sex, user_country, user_language, user_province, user_city, user_heads, create_time, update_time
+	FROM user_infos;
+    </select>
+    <select id="queryInfos" resultType="com.example.client.domain.UserInfos">
+        SELECT user_openid, user_identity, user_name, user_sex, user_country, user_language, user_province, user_city, user_heads,user_latitude,user_longitude, identity_time, create_time, update_time
+	FROM user_infos WHERE user_openid=#{openid}
+    </select>
+    <!--添加用户-->
+    <insert id="add">
+        INSERT INTO user_infos
+            (user_openid, user_identity, user_name, user_sex, user_country, user_language, user_province, user_city, user_heads, create_time, update_time)
+            VALUES (#{userInfos.userOpenid}, 0, #{userInfos.userName}, #{userInfos.userSex}, #{userInfos.userCountry}, #{userInfos.userLanguage}, #{userInfos.userProvince}, #{userInfos.userCity}, #{userInfos.userHeads}, NOW(), NOW())
+    </insert>
+    <!---->
+    <update id="update">
+        UPDATE user_infos
+	SET
+		user_name=#{user.userName},
+		user_sex=#{user.userSex},
+		user_country=#{user.userCountry},
+		user_language=#{user.userLanguage},
+		user_province=#{user.userProvince},
+		user_city=#{user.userCity},
+		user_heads=#{user.userHeads},
+		update_time=NOW()
+	WHERE user_openid=#{user.userOpenid}
+    </update>
+    <update id="updateMap">
+        UPDATE user_infos
+        SET
+        user_latitude=#{user.userLatitude},
+        user_longitude=#{user.userLongitude}
+        WHERE user_openid=#{user.userOpenid}
+    </update>
+</mapper>

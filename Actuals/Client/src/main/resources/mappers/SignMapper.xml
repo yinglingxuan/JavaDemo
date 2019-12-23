@@ -1,0 +1,49 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.client.dao.SignMapper">
+
+     <!--//查询当前积分和签到的天数-->
+    <select id="getSign" resultType="Sign">
+        SELECT openid, sky, integral, create_time, update_time
+	    FROM sign
+	    WHERE openid=#{openid}
+    </select>
+
+    <!--第一次签到添加-->
+    <insert id="addSign">
+        INSERT INTO sign
+        (openid, sky, integral, create_time, update_time)
+        VALUES (#{openid}, 1, '0', NOW(), NOW())
+    </insert>
+
+    <!--判断当前签到的天数-->
+    <select id="space" resultType="Integer">
+        SELECT DATEDIFF(now(),#{date});
+    </select>
+
+    <!--//修改积分和修改天数-->
+    <update id="updateSign">
+        UPDATE sign
+        <set>
+            <if test="sky!=null and sky!=''">sky=#{sky},</if>
+            <if test="integral!=null and integral!=''">integral=#{integral},</if>
+        </set>
+        WHERE openid= #{openid}
+    </update>
+
+    <!--获取到当前对应的红包积分-->
+    <select id="getCoupon" resultType="Coupon">
+        SELECT id, price, integral, create_time, update_time
+	    FROM coupon  WHERE id=#{couponid}
+    </select>
+
+
+    <!--满足兑换条件后的红包添加  时间有效期为3天-->
+    <insert id="addCoupon">
+        INSERT INTO user_coupon
+        (uuid, user_openid, coupon_id, coupon_time, create_time, update_time)
+        VALUES (UUID(),#{openid},#{couponid},date_add(now(),interval 3 day),NOW(),NOW())
+    </insert>
+
+</mapper>
